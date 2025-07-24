@@ -46,13 +46,13 @@
     const tableBody = document.getElementById("participantsTable");
     participants.forEach(p => {
       const row = document.createElement("tr");
-      row.innerHTML = 
+      row.innerHTML = `
         <td>${p.name}</td>
         <td>${p.phone}</td>
         <td>${p.universityId || '-'}</td>
         <td>${p.time || '-'}</td>
         <td>${p.score ?? '-'}</td>
-      ;
+      `;
       tableBody.appendChild(row);
     });
   </script>
