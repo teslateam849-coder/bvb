@@ -1,107 +1,163 @@
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تحدي الثلاثين - تسجيل الدخول</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-<div class="header">
-  <img src="https://uploads.onecompiler.io/43r6ub8mz/43r6u5fru/WhatsApp%20Image%202025-07-20%20at%2015.09.26_9c297a66.jpg" class="header-img" alt="شعار" />
-  <h1>تحدي الثلاثين - تسجيل الدخول</h1>
-</div>
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #fff7f0;
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+}
 
-<main>
-  <h2>اختر دورك للدخول</h2>
-  <div class="role-selection">
-    <button id="btn-contestant">متسابق</button>
-    <button id="btn-admin">مسؤول</button>
-    <button onclick="openTable()">جدول المتسابقين</button>
-  </div>
+.header {
+  text-align: center;
+  background-color: #ff9e2c;
+  padding: 20px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 
-  <form id="contestant-form" style="display:none;">
-    <label for="cname">اسم المتسابق:</label>
-    <input type="text" id="cname" required placeholder="اكتب اسمك" class="big-input" />
+.header-img {
+  width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
 
-    <label for="cphone">رقم الهاتف:</label>
-    <input type="tel" id="cphone" required placeholder="اكتب رقم هاتفك" pattern="\d{10}" maxlength="10" inputmode="numeric" />
+h1 {
+  margin-top: 10px;
+  font-size: 2em;
+  color: #fff;
+}
 
-    <label for="cstudentid">الرقم الجامعي:</label>
-    <input type="text" id="cstudentid" required placeholder="اكتب رقمك الجامعي" pattern="\d{10}" maxlength="10" inputmode="numeric" class="big-input" />
+.container, .admin-container {
+  width: 90%;
+  max-width: 700px;
+  margin: 30px auto;
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
 
-    <input type="submit" value="تسجيل وبدء المسابقة" />
-  </form>
+h2 {
+  text-align: center;
+  color: #ff7700;
+}
 
-  <form id="admin-form" style="display:none;">
-    <label for="admin-username">اسم المستخدم:</label>
-    <input type="text" id="admin-username" required placeholder="ادخل اسم المستخدم" class="big-input" />
-    
-    <label for="admin-password">كلمة المرور:</label>
-    <input type="text" id="admin-password" required placeholder="ادخل كلمة المرور" class="big-input" />
+input[type="text"],
+input[type="tel"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
 
-    <input type="submit" value="دخول المسؤول" />
-  </form>
+.big-input {
+  font-size: 20px;
+  font-weight: bold;
+}
 
-  <div id="message" class="alert" style="display:none;"></div>
-</main>
+button {
+  background-color: #ff7700;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 10px 0;
+  display: block;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
 
-<script>
-  const btnContestant = document.getElementById('btn-contestant');
-  const btnAdmin = document.getElementById('btn-admin');
-  const contestantForm = document.getElementById('contestant-form');
-  const adminForm = document.getElementById('admin-form');
-  const messageDiv = document.getElementById('message');
+button:hover {
+  background-color: #e86000;
+}
 
-  btnContestant.onclick = () => {
-    messageDiv.style.display = 'none';
-    adminForm.style.display = 'none';
-    contestantForm.style.display = 'block';
-  };
+ul {
+  list-style: none;
+  padding: 0;
+}
 
-  btnAdmin.onclick = () => {
-    messageDiv.style.display = 'none';
-    contestantForm.style.display = 'none';
-    adminForm.style.display = 'block';
-  };
+li {
+  background-color: #ffe8cc;
+  border: 1px solid #ffc78e;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-size: 16px;
+}
 
-  contestantForm.onsubmit = (e) => {
-    e.preventDefault();
-    const name = document.getElementById('cname').value.trim();
-    const phone = document.getElementById('cphone').value.trim();
-    const studentId = document.getElementById('cstudentid').value.trim();
+.timer {
+  font-size: 20px;
+  text-align: center;
+  margin-top: 10px;
+  color: #d35400;
+  font-weight: bold;
+}
 
-    if (!name || !phone || !studentId) {
-      alert('يرجى تعبئة جميع الحقول');
-      return;
-    }
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 16px 0;
+  background-color: #fff3e0;
+  border: 2px solid #ffa94d;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
 
-    const entryTime = new Date().toLocaleString();
-    localStorage.setItem('currentContestant', JSON.stringify({ name, phone, universityId: studentId, time: entryTime }));
-    window.location.href = 'contestant.html';
-  };
+.option-btn:hover {
+  background-color: #ffcc99;
+  border-color: #ff9900;
+}
 
-  adminForm.onsubmit = (e) => {
-    e.preventDefault();
-    const user = document.getElementById('admin-username').value.trim();
-    const pass = document.getElementById('admin-password').value.trim();
+.correct {
+  background-color: #c0f2b0 !important;
+  border-color: #34a853 !important;
+}
 
-    if (user === 'moath' && pass === '00000000') {
-      window.location.href = 'admin.html';
-    } else {
-      messageDiv.textContent = 'اسم المستخدم أو كلمة المرور خاطئة';
-      messageDiv.style.display = 'block';
-    }
-  };
+.incorrect {
+  background-color: #f7a3a3 !important;
+  border-color: #e53935 !important;
+}
 
-  function openTable() {
-    const password = prompt("أدخل كلمة السر لعرض جدول المتسابقين:");
-    if (password === "00000000") {
-      window.open("table.html", "_blank");
-    } else {
-      alert("كلمة السر غير صحيحة!");
-    }
-  }
-</script>
+.quiz-container {
+  position: relative;
+  padding: 20px;
+  text-align: center;
+}
 
-</body>
-</html>
+.question-box {
+  background-color: #fff3cd;
+  border: 2px solid #ffeeba;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+  position: relative;
+}
+
+.timer-box {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  color: #d35400;
+}
