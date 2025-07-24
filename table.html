@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <title>جدول المتسابقين</title>
@@ -8,7 +8,6 @@
       font-family: Arial, sans-serif;
       direction: rtl;
       text-align: center;
-      padding: 20px;
     }
     table {
       margin: auto;
@@ -16,73 +15,45 @@
       width: 90%;
     }
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #333;
       padding: 10px;
     }
     th {
       background-color: #f2f2f2;
     }
   </style>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "ضع مفتاحك هنا",
-      authDomain: "project-id.firebaseapp.com",
-      projectId: "project-id",
-      storageBucket: "project-id.appspot.com",
-      messagingSenderId: "....",
-      appId: "...."
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
 </head>
 <body>
-  <h1>جدول المتسابقين</h1>
-
+  <h2>جدول المتسابقين</h2>
   <table>
     <thead>
       <tr>
         <th>الاسم</th>
-        <th>رقم الجوال</th>
+        <th>رقم الهاتف</th>
         <th>الرقم الجامعي</th>
         <th>وقت الدخول</th>
-        <th>النتيجة</th>
+        <th>العلامة</th>
       </tr>
     </thead>
     <tbody id="participantsTable">
-      <tr><td colspan="5">جارٍ تحميل البيانات...</td></tr>
+      <!-- سيتم ملء الجدول من localStorage -->
     </tbody>
   </table>
 
   <script>
+    const participants = JSON.parse(localStorage.getItem("contestantResults")) || [];
+
     const tableBody = document.getElementById("participantsTable");
-    tableBody.innerHTML = "";
-
-    db.collection("contestants").orderBy("score", "desc").get().then(snapshot => {
-      if (snapshot.empty) {
-        tableBody.innerHTML = "<tr><td colspan='5'>لا يوجد بيانات حتى الآن</td></tr>";
-        return;
-      }
-
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${p.name || '-'}</td>
-          <td>${p.phone || '-'}</td>
-          <td>${p.universityId || '-'}</td>
-          <td>${p.time || '-'}</td>
-          <td>${p.score ?? '-'}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }).catch(err => {
-      tableBody.innerHTML = `<tr><td colspan='5'>حدث خطأ: ${err.message}</td></tr>`;
+    participants.forEach(p => {
+      const row = document.createElement("tr");
+      row.innerHTML = 
+        <td>${p.name}</td>
+        <td>${p.phone}</td>
+        <td>${p.universityId || '-'}</td>
+        <td>${p.time || '-'}</td>
+        <td>${p.score ?? '-'}</td>
+      ;
+      tableBody.appendChild(row);
     });
   </script>
 </body>
