@@ -1,107 +1,83 @@
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تحدي الثلاثين - تسجيل الدخول</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول</title>
+  <style>
+    body { font-family: Arial; padding: 2em; background: #f9f9f9; direction: rtl; }
+    form { background: white; padding: 2em; border-radius: 1em; max-width: 400px; margin: auto; box-shadow: 0 0 10px #ccc; }
+    label { display: block; margin: 1em 0 0.5em; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 0.5em; }
+    button { margin-top: 1em; padding: 0.7em; width: 100%; }
+  </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaVUoJm1_m2Cg-qZPjjMfJzCMxM81v-ig",
+      authDomain: "tesla-2ed15.firebaseapp.com",
+      databaseURL: "https://tesla-2ed15-default-rtdb.firebaseio.com",
+      projectId: "tesla-2ed15",
+      storageBucket: "tesla-2ed15.firebasestorage.app",
+      messagingSenderId: "728875030496",
+      appId: "1:728875030496:web:25b5477635dea1e291bd85",
+      measurementId: "G-F6NKFKLHDH"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
 </head>
 <body>
-<div class="header">
-  <img src="https://uploads.onecompiler.io/43r6ub8mz/43r6u5fru/WhatsApp%20Image%202025-07-20%20at%2015.09.26_9c297a66.jpg" class="header-img" alt="شعار" />
-  <h1>تحدي الثلاثين - تسجيل الدخول</h1>
-</div>
 
-<main>
-  <h2>اختر دورك للدخول</h2>
-  <div class="role-selection">
-    <button id="btn-contestant">متسابق</button>
-    <button id="btn-admin">مسؤول</button>
-    <button onclick="openTable()">جدول المتسابقين</button>
-  </div>
+  <form id="contestantForm">
+    <h2>تسجيل متسابق</h2>
+    <label>الاسم الكامل:</label>
+    <input type="text" id="cname" required>
 
-  <form id="contestant-form" style="display:none;">
-    <label for="cname">اسم المتسابق:</label>
-    <input type="text" id="cname" required placeholder="اكتب اسمك" class="big-input" />
+    <label>رقم الهاتف:</label>
+    <input type="text" id="cphone" required>
 
-    <label for="cphone">رقم الهاتف:</label>
-    <input type="tel" id="cphone" required placeholder="اكتب رقم هاتفك" pattern="\d{10}" maxlength="10" inputmode="numeric" />
+    <label>الرقم الجامعي:</label>
+    <input type="text" id="cstudentid" required>
 
-    <label for="cstudentid">الرقم الجامعي:</label>
-    <input type="text" id="cstudentid" required placeholder="اكتب رقمك الجامعي" pattern="\d{10}" maxlength="10" inputmode="numeric" class="big-input" />
-
-    <input type="submit" value="تسجيل وبدء المسابقة" />
+    <button type="submit">ابدأ الاختبار</button>
   </form>
 
-  <form id="admin-form" style="display:none;">
-    <label for="admin-username">اسم المستخدم:</label>
-    <input type="text" id="admin-username" required placeholder="ادخل اسم المستخدم" class="big-input" />
-    
-    <label for="admin-password">كلمة المرور:</label>
-    <input type="text" id="admin-password" required placeholder="ادخل كلمة المرور" class="big-input" />
+  <script>
+    const contestantForm = document.getElementById("contestantForm");
 
-    <input type="submit" value="دخول المسؤول" />
-  </form>
+    contestantForm.onsubmit = (e) => {
+      e.preventDefault();
 
-  <div id="message" class="alert" style="display:none;"></div>
-</main>
+      const name = document.getElementById("cname").value.trim();
+      const phone = document.getElementById("cphone").value.trim();
+      const studentId = document.getElementById("cstudentid").value.trim();
+      const entryTime = new Date().toLocaleString();
 
-<script>
-  const btnContestant = document.getElementById('btn-contestant');
-  const btnAdmin = document.getElementById('btn-admin');
-  const contestantForm = document.getElementById('contestant-form');
-  const adminForm = document.getElementById('admin-form');
-  const messageDiv = document.getElementById('message');
+      if (!name || !phone || !studentId) {
+        alert("يرجى تعبئة جميع الحقول");
+        return;
+      }
 
-  btnContestant.onclick = () => {
-    messageDiv.style.display = 'none';
-    adminForm.style.display = 'none';
-    contestantForm.style.display = 'block';
-  };
+      const contestant = {
+        name,
+        phone,
+        universityId: studentId,
+        time: entryTime,
+        score: 0
+      };
 
-  btnAdmin.onclick = () => {
-    messageDiv.style.display = 'none';
-    contestantForm.style.display = 'none';
-    adminForm.style.display = 'block';
-  };
+      const newRef = db.ref("contestants").push();
+      newRef.set(contestant);
 
-  contestantForm.onsubmit = (e) => {
-    e.preventDefault();
-    const name = document.getElementById('cname').value.trim();
-    const phone = document.getElementById('cphone').value.trim();
-    const studentId = document.getElementById('cstudentid').value.trim();
+      localStorage.setItem("currentContestantKey", newRef.key);
+      localStorage.setItem("currentContestant", JSON.stringify(contestant));
 
-    if (!name || !phone || !studentId) {
-      alert('يرجى تعبئة جميع الحقول');
-      return;
-    }
-
-    const entryTime = new Date().toLocaleString();
-    localStorage.setItem('currentContestant', JSON.stringify({ name, phone, universityId: studentId, time: entryTime }));
-    window.location.href = 'contestant.html';
-  };
-
-  adminForm.onsubmit = (e) => {
-    e.preventDefault();
-    const user = document.getElementById('admin-username').value.trim();
-    const pass = document.getElementById('admin-password').value.trim();
-
-    if (user === 'moath' && pass === '00000000') {
-      window.location.href = 'admin.html';
-    } else {
-      messageDiv.textContent = 'اسم المستخدم أو كلمة المرور خاطئة';
-      messageDiv.style.display = 'block';
-    }
-  };
-
-  function openTable() {
-    const password = prompt("أدخل كلمة السر لعرض جدول المتسابقين:");
-    if (password === "00000000") {
-      window.open("table.html", "_blank");
-    } else {
-      alert("كلمة السر غير صحيحة!");
-    }
-  }
-</script>
+      window.location.href = "contestant.html";
+    };
+  </script>
 
 </body>
 </html>
