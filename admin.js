@@ -1,4 +1,4 @@
-.const opt4 = document.getElementById("opt4");
+const opt4 = document.getElementById("opt4");
 const questionsList = document.getElementById("questionsList");
 
 let questions = JSON.parse(localStorage.getItem("questions")) || [];
