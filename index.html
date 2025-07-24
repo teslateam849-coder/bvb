@@ -1,59 +1,33 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>تسجيل المتسابق</title>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "ضع مفتاحك هنا",
-      authDomain: "project-id.firebaseapp.com",
-      projectId: "project-id",
-      storageBucket: "project-id.appspot.com",
-      messagingSenderId: "....",
-      appId: "...."
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مشروع فايربيس</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <form id="contestantForm">
-    <input type="text" id="name" placeholder="الاسم" required />
-    <input type="tel" id="phone" placeholder="رقم الجوال" required />
-    <input type="text" id="studentId" placeholder="الرقم الجامعي" required />
-    <button type="submit">دخول</button>
-  </form>
 
-  <script>
-    document.getElementById("contestantForm").addEventListener("submit", function (e) {
-      e.preventDefault();
+  <div class="header">
+    <h1>تسجيل المتسابقين</h1>
+  </div>
 
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const studentId = document.getElementById("studentId").value.trim();
-      const entryTime = new Date().toLocaleString();
+  <div class="container">
+    <form id="userForm">
+      <input type="text" id="name" placeholder="الاسم" required />
+      <input type="tel" id="phone" placeholder="رقم الهاتف" required />
+      <button type="submit">سجل الآن</button>
+    </form>
 
-      db.collection("contestants").add({
-        name,
-        phone,
-        universityId: studentId,
-        time: entryTime,
-        score: 0
-      })
-      .then(docRef => {
-        localStorage.setItem("contestantId", docRef.id);
-        window.location.href = "contestant.html";
-      })
-      .catch(error => {
-        alert("حدث خطأ في التسجيل: " + error.message);
-      });
-    });
-  </script>
+    <h2>قائمة المتسابقين</h2>
+    <ul id="usersList"></ul>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- كود الجافاسكريبت -->
+  <script src="app.js"></script>
 </body>
 </html>
-
