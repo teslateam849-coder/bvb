@@ -60,3 +60,4 @@ function shuffleArray(array) {
 }
 
 displayQuestions();
+
