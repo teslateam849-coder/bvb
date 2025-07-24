@@ -1,117 +1,111 @@
-// Firebase SDK - تأكد أن firebaseApp.js تم تحميله في index.html أو أضفه هنا إن لم يكن موجودًا
-const firebaseConfig = {
-  apiKey: "ضع مفتاحك هنا",
-  authDomain: "project-id.firebaseapp.com",
-  projectId: "project-id",
-  storageBucket: "project-id.appspot.com",
-  messagingSenderId: "....",
-  appId: "...."
-};
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تحدي 30 - المتسابق</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="header">
+    <img src="https://uploads.onecompiler.io/43r6ub8mz/43r6u5fru/WhatsApp%20Image%202025-07-20%20at%2015.09.26_9c297a66.jpg" class="header-img" alt="شعار" />
+    <h1>تحدي الثلاثين - المتسابق</h1>
+  </div>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  <div class="quiz-container">
+    <div id="questionBox" class="question-box">جاري تحميل السؤال...</div>
+    <div id="optionsBox" class="options-box"></div>
+    <div id="timer" class="timer-box">10</div>
+    <div id="progress" class="progress-box"></div>
+  </div>
 
-// أسئلة الاختبار
-import { questions } from './questions.js';
+  <!-- تحميل الأسئلة -->
+  <script src="questions.js"></script>
+  <!-- تشغيل منطق المسابقة -->
+  <script src="contestant.js"></script>
+</body>
+</html>.....contestant.js....let questions = shuffleArray(window.questions).slice(0, 10);
 
-let currentQuestion = 0;
+let current = 0;
 let score = 0;
 let timer;
-let seconds = 15;
+let countdown = 10;
 
-const questionEl = document.getElementById("question");
-const answersEl = document.getElementById("answers");
-const nextBtn = document.getElementById("next-btn");
-const timerEl = document.getElementById("timer");
-const resultEl = document.getElementById("result");
+const warningSound = new Audio("https://www.soundjay.com/button/sounds/beep-07.mp3");
 
 function startQuestion() {
-  if (currentQuestion >= questions.length) {
+  if (current >= questions.length) {
     showResult();
     return;
   }
 
-  const q = questions[currentQuestion];
-  questionEl.textContent = q.question;
+  const q = questions[current];
+  document.getElementById("questionBox").innerText = q.question;
 
-  answersEl.innerHTML = "";
-  q.answers.forEach(answer => {
+  const optionsBox = document.getElementById("optionsBox");
+  optionsBox.innerHTML = "";
+
+  const shuffledOptions = shuffleArray([...q.answers]);
+
+  shuffledOptions.forEach(opt => {
     const btn = document.createElement("button");
-    btn.textContent = answer;
-    btn.className = "answer-btn";
-    btn.addEventListener("click", () => checkAnswer(btn, q.correct));
-    answersEl.appendChild(btn);
+    btn.innerText = opt;
+    btn.className = "option-btn";
+    btn.onclick = () => {
+      clearInterval(timer);
+      if (opt === q.correct) score++;
+      current++;
+      startQuestion();
+    };
+    optionsBox.appendChild(btn);
   });
 
-  startTimer();
-}
+  countdown = 10;
+  const timerEl = document.getElementById("timer");
+  timerEl.innerText = countdown;
+  timerEl.style.color = "#d35400";
 
-function startTimer() {
-  clearInterval(timer);
-  seconds = 15;
-  timerEl.textContent = seconds;
   timer = setInterval(() => {
-    seconds--;
-    timerEl.textContent = seconds;
-    if (seconds === 0) {
+    countdown--;
+    timerEl.innerText = countdown;
+
+    if (countdown === 3) warningSound.play();
+    if (countdown <= 3) timerEl.style.color = "red";
+    else timerEl.style.color = "#d35400";
+
+    if (countdown === 0) {
       clearInterval(timer);
-      nextQuestion();
+      current++;
+      startQuestion();
     }
   }, 1000);
-}
 
-function checkAnswer(button, correctAnswer) {
-  clearInterval(timer);
-  const isCorrect = button.textContent === correctAnswer;
-  if (isCorrect) {
-    score++;
-    button.style.backgroundColor = "green";
-  } else {
-    button.style.backgroundColor = "red";
-    [...answersEl.children].forEach(btn => {
-      if (btn.textContent === correctAnswer) {
-        btn.style.backgroundColor = "green";
-      }
-    });
-  }
-
-  [...answersEl.children].forEach(btn => btn.disabled = true);
-  nextBtn.disabled = false;
-}
-
-function nextQuestion() {
-  currentQuestion++;
-  nextBtn.disabled = true;
-  startQuestion();
+  document.getElementById("progress").innerText = السؤال ${current + 1} من ${questions.length};
 }
 
 function showResult() {
-  questionEl.textContent = "انتهى الاختبار!";
-  answersEl.innerHTML = "";
-  timerEl.textContent = "";
-  resultEl.textContent = `نتيجتك: ${score} / ${questions.length}`;
-  nextBtn.style.display = "none";
+  document.getElementById("questionBox").style.display = "none";
+  document.getElementById("optionsBox").style.display = "none";
+  document.getElementById("timer").style.display = "none";
+  document.getElementById("progress").style.display = "none";
 
-  // ✅ تحديث النتيجة في Firestore
-  const contestantId = localStorage.getItem("contestantId");
+  const quizContainer = document.querySelector(".quiz-container");
+  quizContainer.innerHTML = 
+    <div class="result-box" style="font-size: 24px; color: #ff7700; text-align: center; margin-top: 40px;">
+      انتهت الأسئلة! نتيجتك: ${score} من ${questions.length}
+    </div>
+  ;
 
-  if (contestantId) {
-    db.collection("contestants").doc(contestantId).update({
-      score
-    })
-    .then(() => {
-      console.log("تم حفظ النتيجة بنجاح");
-    })
-    .catch(err => {
-      console.error("فشل حفظ النتيجة:", err);
-    });
-  } else {
-    console.warn("لم يتم العثور على contestantId في localStorage");
-  }
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 5000);
 }
 
-// عند تحميل الصفحة، نبدأ أول سؤال
-startQuestion();
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
-// زر التالي
-nextBtn.addEventListener("click", nextQuestion);
+startQuestion();
