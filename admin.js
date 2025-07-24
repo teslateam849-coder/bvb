@@ -1,7 +1,3 @@
-const questionInput = document.getElementById("questionInput");
-const opt1 = document.getElementById("opt1");
-const opt2 = document.getElementById("opt2");
-const opt3 = document.getElementById("opt3");
 const opt4 = document.getElementById("opt4");
 const questionsList = document.getElementById("questionsList");
 
@@ -29,7 +25,7 @@ function addQuestion() {
   const o3 = opt3.value.trim();
   const o4 = opt4.value.trim();
 
-  if (!question  !o1  !o2  !o3  !o4) {
+  if (!question || !o1 || !o2 || !o3 || !o4) {
     alert("يرجى تعبئة جميع الحقول!");
     return;
   }
