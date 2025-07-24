@@ -1,4 +1,4 @@
-et questions = shuffleArray(window.questions).slice(0, 10);
+let questions = shuffleArray(window.questions).slice(0, 10);
 
 let current = 0;
 let score = 0;
