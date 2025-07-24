@@ -7,14 +7,15 @@
     body { font-family: Arial; padding: 2em; background: #f9f9f9; direction: rtl; }
     form { background: white; padding: 2em; border-radius: 1em; max-width: 400px; margin: auto; box-shadow: 0 0 10px #ccc; }
     label { display: block; margin: 1em 0 0.5em; }
-    input[type="text"], input[type="password"] { width: 100%; padding: 0.5em; }
+    input[type="text"] { width: 100%; padding: 0.5em; }
     button { margin-top: 1em; padding: 0.7em; width: 100%; }
   </style>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js"></script>
-  <script>
+  <!-- Firebase Modules -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCaVUoJm1_m2Cg-qZPjjMfJzCMxM81v-ig",
       authDomain: "tesla-2ed15.firebaseapp.com",
@@ -25,30 +26,12 @@
       appId: "1:728875030496:web:25b5477635dea1e291bd85",
       measurementId: "G-F6NKFKLHDH"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
-</head>
-<body>
 
-  <form id="contestantForm">
-    <h2>تسجيل متسابق</h2>
-    <label>الاسم الكامل:</label>
-    <input type="text" id="cname" required>
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    <label>رقم الهاتف:</label>
-    <input type="text" id="cphone" required>
-
-    <label>الرقم الجامعي:</label>
-    <input type="text" id="cstudentid" required>
-
-    <button type="submit">ابدأ الاختبار</button>
-  </form>
-
-  <script>
-    const contestantForm = document.getElementById("contestantForm");
-
-    contestantForm.onsubmit = (e) => {
+    // تسجيل البيانات عند الضغط على زر "ابدأ الاختبار"
+    document.getElementById("contestantForm").onsubmit = async (e) => {
       e.preventDefault();
 
       const name = document.getElementById("cname").value.trim();
@@ -69,15 +52,36 @@
         score: 0
       };
 
-      const newRef = db.ref("contestants").push();
-      newRef.set(contestant);
+      try {
+        const newRef = push(ref(db, "contestants"));
+        await set(newRef, contestant);
 
-      localStorage.setItem("currentContestantKey", newRef.key);
-      localStorage.setItem("currentContestant", JSON.stringify(contestant));
+        localStorage.setItem("currentContestantKey", newRef.key);
+        localStorage.setItem("currentContestant", JSON.stringify(contestant));
 
-      window.location.href = "contestant.html";
+        window.location.href = "contestant.html";
+      } catch (error) {
+        console.error("فشل حفظ البيانات:", error);
+        alert("حدث خطأ أثناء التسجيل. حاول مرة أخرى.");
+      }
     };
   </script>
+</head>
+<body>
+
+  <form id="contestantForm">
+    <h2>تسجيل متسابق</h2>
+    <label>الاسم الكامل:</label>
+    <input type="text" id="cname" required>
+
+    <label>رقم الهاتف:</label>
+    <input type="text" id="cphone" required>
+
+    <label>الرقم الجامعي:</label>
+    <input type="text" id="cstudentid" required>
+
+    <button type="submit">ابدأ الاختبار</button>
+  </form>
 
 </body>
 </html>
