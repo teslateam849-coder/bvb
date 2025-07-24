@@ -1,9 +1,6 @@
-// تحميل مكتبات Firebase إذا لم تكن موجودة في HTML
-// (يفضل إضافتها في HTML مرة واحدة)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
 
-// إعداد Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCaVUoJm1_m2Cg-qZPjjMfJzCMxM81v-ig",
   authDomain: "tesla-2ed15.firebaseapp.com",
@@ -18,7 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// إعداد الأسئلة
 let currentQuestion = 0;
 let score = 0;
 let selectedQuestions = [];
@@ -33,14 +29,25 @@ function shuffle(array) {
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
   }
   return array;
 }
 
+function loadQuestions() {
+  const qs = JSON.parse(localStorage.getItem("questions"));
+  if (!qs || qs.length === 0) {
+    alert("لا توجد أسئلة متاحة حاليا.");
+    return [];
+  }
+  return qs;
+}
+
 function startQuiz() {
-  selectedQuestions = shuffle([...window.questions]).slice(0, 10);
+  const allQuestions = loadQuestions();
+  selectedQuestions = shuffle([...allQuestions]).slice(0, 10);
+  currentQuestion = 0;
+  score = 0;
   showQuestion();
   startTimer();
 }
@@ -51,17 +58,18 @@ function showQuestion() {
 
   questionContainer.innerHTML = `
     <h3>${currentQuestion + 1}. ${q.question}</h3>
-    ${q.answers.map((a, i) => `<button onclick="checkAnswer(${i})">${a}</button>`).join('')}
+    ${q.options.map(option => `<button onclick="checkAnswer('${option}')">${option}</button>`).join('')}
   `;
 
   timeLeft = 10;
   updateTimerDisplay();
 }
 
-function checkAnswer(selectedIndex) {
-  const correctIndex = selectedQuestions[currentQuestion].correct;
-  if (selectedIndex === correctIndex) score++;
-
+function checkAnswer(selectedOption) {
+  const q = selectedQuestions[currentQuestion];
+  if (selectedOption === q.correct) {
+    score++;
+  }
   nextQuestion();
 }
 
@@ -101,11 +109,14 @@ function showResult() {
     <p>درجتك: ${score} من ${selectedQuestions.length}</p>
   `;
 
-  // حفظ النتيجة في Firebase
   const key = localStorage.getItem("currentContestantKey");
   if (key) {
     const scoreRef = ref(db, "contestants/" + key + "/score");
-    set(scoreRef, score);
+    set(scoreRef, score)
+      .then(() => console.log("تم حفظ النتيجة بنجاح"))
+      .catch(err => console.error("خطأ في حفظ النتيجة:", err));
+  } else {
+    console.warn("لم يتم العثور على مفتاح المتسابق في localStorage");
   }
 
   setTimeout(() => {
@@ -113,5 +124,8 @@ function showResult() {
   }, 5000);
 }
 
-// تشغيل الاختبار عند التحميل
-window.onload = startQuiz;
+window.checkAnswer = checkAnswer; // لجعل الدالة متاحة في الـ onclick بالـ HTML
+
+window.onload = () => {
+  startQuiz();
+};
