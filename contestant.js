@@ -1,86 +1,117 @@
-let questions = shuffleArray(window.questions).slice(0, 10);
+// تحميل مكتبات Firebase إذا لم تكن موجودة في HTML
+// (يفضل إضافتها في HTML مرة واحدة)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
 
-let current = 0;
+// إعداد Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCaVUoJm1_m2Cg-qZPjjMfJzCMxM81v-ig",
+  authDomain: "tesla-2ed15.firebaseapp.com",
+  databaseURL: "https://tesla-2ed15-default-rtdb.firebaseio.com",
+  projectId: "tesla-2ed15",
+  storageBucket: "tesla-2ed15.firebasestorage.app",
+  messagingSenderId: "728875030496",
+  appId: "1:728875030496:web:25b5477635dea1e291bd85",
+  measurementId: "G-F6NKFKLHDH"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// إعداد الأسئلة
+let currentQuestion = 0;
 let score = 0;
+let selectedQuestions = [];
 let timer;
-let countdown = 10;
+let timeLeft = 10;
 
-const warningSound = new Audio("https://www.soundjay.com/button/sounds/beep-07.mp3");
+const questionContainer = document.getElementById("questionContainer");
+const timerElement = document.getElementById("timer");
 
-function startQuestion() {
-  if (current >= questions.length) {
-    showResult();
-    return;
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
   }
+  return array;
+}
 
-  const q = questions[current];
-  document.getElementById("questionBox").innerText = q.question;
+function startQuiz() {
+  selectedQuestions = shuffle([...window.questions]).slice(0, 10);
+  showQuestion();
+  startTimer();
+}
 
-  const optionsBox = document.getElementById("optionsBox");
-  optionsBox.innerHTML = "";
+function showQuestion() {
+  const q = selectedQuestions[currentQuestion];
+  if (!q) return;
 
-  const shuffledOptions = shuffleArray([...q.answers]);
+  questionContainer.innerHTML = `
+    <h3>${currentQuestion + 1}. ${q.question}</h3>
+    ${q.answers.map((a, i) => `<button onclick="checkAnswer(${i})">${a}</button>`).join('')}
+  `;
 
-  shuffledOptions.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.className = "option-btn";
-    btn.onclick = () => {
-      clearInterval(timer);
-      if (opt === q.correct) score++;
-      current++;
-      startQuestion();
-    };
-    optionsBox.appendChild(btn);
-  });
+  timeLeft = 10;
+  updateTimerDisplay();
+}
 
-  countdown = 10;
-  const timerEl = document.getElementById("timer");
-  timerEl.innerText = countdown;
-  timerEl.style.color = "#d35400";
+function checkAnswer(selectedIndex) {
+  const correctIndex = selectedQuestions[currentQuestion].correct;
+  if (selectedIndex === correctIndex) score++;
 
+  nextQuestion();
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion < selectedQuestions.length) {
+    showQuestion();
+    resetTimer();
+  } else {
+    showResult();
+  }
+}
+
+function startTimer() {
   timer = setInterval(() => {
-    countdown--;
-    timerEl.innerText = countdown;
+    timeLeft--;
+    updateTimerDisplay();
 
-    if (countdown === 3) warningSound.play();
-    if (countdown <= 3) timerEl.style.color = "red";
-    else timerEl.style.color = "#d35400";
-
-    if (countdown === 0) {
-      clearInterval(timer);
-      current++;
-      startQuestion();
+    if (timeLeft === 0) {
+      nextQuestion();
     }
   }, 1000);
+}
 
-  document.getElementById("progress").innerText = `السؤال ${current + 1} من ${questions.length}`;
+function resetTimer() {
+  timeLeft = 10;
+}
+
+function updateTimerDisplay() {
+  timerElement.textContent = `الوقت المتبقي: ${timeLeft} ثانية`;
 }
 
 function showResult() {
-  document.getElementById("questionBox").style.display = "none";
-  document.getElementById("optionsBox").style.display = "none";
-  document.getElementById("timer").style.display = "none";
-  document.getElementById("progress").style.display = "none";
-
-  const quizContainer = document.querySelector(".quiz-container");
-  quizContainer.innerHTML = `
-    <div class="result-box" style="font-size: 24px; color: #ff7700; text-align: center; margin-top: 40px;">
-      انتهت الأسئلة! نتيجتك: ${score} من ${questions.length}
-    </div>
+  clearInterval(timer);
+  questionContainer.innerHTML = `
+    <h2>انتهى الاختبار</h2>
+    <p>درجتك: ${score} من ${selectedQuestions.length}</p>
   `;
+
+  // حفظ النتيجة في Firebase
+  const key = localStorage.getItem("currentContestantKey");
+  if (key) {
+    const scoreRef = ref(db, "contestants/" + key + "/score");
+    set(scoreRef, score);
+  }
 
   setTimeout(() => {
     window.location.href = "index.html";
   }, 5000);
 }
 
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-startQuestion();
+// تشغيل الاختبار عند التحميل
+window.onload = startQuiz;
