@@ -1,3 +1,4 @@
+
 let questions = shuffleArray(window.questions).slice(0, 10);
 
 let current = 0;
@@ -54,7 +55,7 @@ function startQuestion() {
     }
   }, 1000);
 
-  document.getElementById("progress").innerText = السؤال ${current + 1} من ${questions.length};
+  document.getElementById("progress").innerText = `السؤال ${current + 1} من ${questions.length}`;
 }
 
 function showResult() {
@@ -64,11 +65,11 @@ function showResult() {
   document.getElementById("progress").style.display = "none";
 
   const quizContainer = document.querySelector(".quiz-container");
-  quizContainer.innerHTML = 
+  quizContainer.innerHTML = `
     <div class="result-box" style="font-size: 24px; color: #ff7700; text-align: center; margin-top: 40px;">
       انتهت الأسئلة! نتيجتك: ${score} من ${questions.length}
     </div>
-  ;
+  `;
 
   setTimeout(() => {
     window.location.href = "index.html";
@@ -84,4 +85,3 @@ function shuffleArray(array) {
 }
 
 startQuestion();
-
